@@ -1,3 +1,4 @@
+#! /usr/local/bin/python3
 from implementation import PriorityQueue
 from search_algos import reconstruct_path
 from utils import find_coordinates, print_puzzle, read_from_stdin, get_neighbours, get_blank_matrix, get_goal_puzzle, \
@@ -5,7 +6,7 @@ from utils import find_coordinates, print_puzzle, read_from_stdin, get_neighbour
 from visualizer import visualizer
 
 
-def heuristic(a: tuple, b: tuple):
+def heuristic(a: tuple, b: tuple) -> int:
     max_num = len(a)**2
     sum = 0
     for i in range(1, max_num):
@@ -13,6 +14,15 @@ def heuristic(a: tuple, b: tuple):
         (x2, y2) = find_coordinates(b, i)
         sum += abs(x1 - x2) + abs(y1 - y2)
     return sum
+
+
+def heuristic2(a: tuple, b: tuple) -> int:
+    num = 0
+    for i in range(len(a)):
+        for j in range(len(a[i])):
+            if a[i][j] != b[i][j]:
+                num += 1
+    return num
 
 
 def a_star_search(start, goal):
@@ -31,7 +41,9 @@ def a_star_search(start, goal):
             new_cost = cost_so_far[current] + 1
             if n not in cost_so_far or new_cost < cost_so_far[n]:
                 cost_so_far[n] = new_cost
-                priority = new_cost + heuristic(goal, n)
+                # priority = new_cost
+                priority = heuristic2(goal, n)
+                # priority = priority + heuristic(goal, n)
                 frontier.put(n, priority)
                 came_from[n] = current
     return came_from, cost_so_far
@@ -40,6 +52,10 @@ def a_star_search(start, goal):
 # puzzle = ((3, 7, 4),
 #           (6, 2, 0),
 #           (5, 8, 1))
+# puzzle = ((3, 7, 12, 2),
+#           (10, 5, 0, 13),
+#           (14, 15, 1, 4),
+#           (9, 6, 11, 8))
 puzzle = read_from_stdin()
 goal_puzzle = get_goal_puzzle(len(puzzle))
 came_from, cost_so_far = a_star_search(puzzle, goal_puzzle)
